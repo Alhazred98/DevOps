@@ -1,0 +1,76 @@
+version: '2'
+
+services:
+  loadbalancer:
+    image: nginx:latest
+    ports:
+      - 8080:8080
+    networks:
+      - devops
+    depends_on:
+      - javapp
+  javapp:
+    image: javapp:1.0.0
+    ports:
+      - 8081-8082:8080
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '500M'
+    networks:
+      - devops
+    environment:
+      - DB_URL=jdbc:mysql://mysql:3306/commerce_spring_jpa
+      - DB_USER=root 
+      - DB_PWD=admin123
+      - DB_NAME=commerce_spring_jpa
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:latest
+    ports:
+      - 3307:3306
+    networks:
+      - devops
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+#  spedizioni:
+#    image: spedizione:1.2.0
+#    ports:
+#      - 8080
+#    deploy:
+#      replicas: 2
+#      resources:
+#        limits:
+#          cpus: '0.5'
+#          memory: '500M'
+#    networks:
+#      - devops
+#    environment:
+#      - DB_URL=jdbc:mysql://mysql:3306/commerce_spring_jpa
+#      - DB_USER=root 
+#      - DB_PWD=admin123
+#      - DB_NAME=commerce_spring_jpa
+#    depends_on:
+#    - mysql
+    
+  
+  #ordini:
+  #  image: ordini:latest
+  #  ports:
+  #    - 8080:8080
+  #  environment:
+  #    - DB_HOST=mysql
+  #    - DB_USER=root 
+  #    - DB_PWD=admin123
+  #    - DB_NAME=test
+  #  volumes:
+  #    - ./restapi:/var/restapi/data
+networks:
+  devops: {}
+
